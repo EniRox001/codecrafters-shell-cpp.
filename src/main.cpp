@@ -101,6 +101,21 @@ int main() {
       continue;
     }
 
+    if (command == "cd") {
+      if (arguments.empty()) {
+        std::cerr << "cd: missing arguments" << std::endl;
+        continue;
+      }
+      if (std::filesystem::exists(arguments[0])) {
+        std::filesystem::current_path(arguments[0]);
+        continue;
+      } else {
+        std::cerr << "cd: " << arguments[0] << ": No such file or directory"
+                  << std::endl;
+        continue;
+      }
+    }
+
     // Locate the command in the PATH
     std::string path = get_path(command);
     if (path.empty()) {
