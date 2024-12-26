@@ -102,11 +102,11 @@ int main() {
     }
 
     if (command == "cd") {
-      if (arguments.empty()) {
-        std::cerr << "cd: missing arguments" << std::endl;
+      if (arguments.empty() || arguments[0] == "~") {
+
+        std::filesystem::current_path(std::getenv("HOME"));
         continue;
-      }
-      if (std::filesystem::exists(arguments[0])) {
+      } else if (std::filesystem::exists(arguments[0])) {
         std::filesystem::current_path(arguments[0]);
         continue;
       } else {
