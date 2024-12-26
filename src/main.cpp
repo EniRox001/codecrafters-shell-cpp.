@@ -35,7 +35,7 @@ std::vector<std::string> split_input(const std::string &input) {
 
 int main() {
   // Shell built-in commands
-  std::vector<std::string> built_ins = {"echo", "exit", "type"};
+  std::vector<std::string> built_ins = {"echo", "exit", "type", "pwd"};
 
   // Flush after every std::cout / std::cerr
   std::cout << std::unitbuf;
@@ -93,6 +93,11 @@ int main() {
           std::cout << arguments[0] << " is " << path << std::endl;
         }
       }
+      continue;
+    }
+
+    if (command == "pwd") {
+      std::cout << std::filesystem::current_path().string() << std::endl;
       continue;
     }
 
