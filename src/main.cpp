@@ -1,12 +1,29 @@
+#include <cstdlib>
+#include <filesystem>
 #include <iostream>
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <vector>
+
+std::string get_path(std::string command) {
+  std::string abs_path = std::getenv("PATH");
+  std::stringstream ss(abs_path);
+  std::string path;
+  while (!ss.eof()) {
+    getline(ss, path, ':');
+    std::string abs_path = path + "/" + command;
+    if (std::filesystem::exists(abs_path)) {
+      return abs_path;
+    }
+  }
+  return "";
+}
 
 int main() {
 
   // Shell built-in commands
-  std::vector<std::string> builtIns = {"echo", "exit", "type"};
+  std::vector<std::string> built_ins = {"echo", "exit", "type"};
 
   // Flush after every std::cout / std:cerr
   std::cout << std::unitbuf;
@@ -31,15 +48,21 @@ int main() {
       std::string val = input.substr(5);
 
       bool found = false;
-      for (int i = 0; i < builtIns.size(); i++) {
-        if (val == builtIns[i]) {
+      for (int i = 0; i < built_ins.size(); i++) {
+        if (val == built_ins[i]) {
           std::cout << val << " is a shell builtin" << std::endl;
           found = true;
           break;
         }
       }
       if (!found) {
-        std::cout << val << ": not found" << std::endl;
+        std::string path = get_path(val);
+
+        if (path.empty()) {
+          std::cout << val << ": not found" << std::endl;
+        } else {
+          std::cout << val << " is " << path << std::endl;
+        }
       }
       continue;
     }
