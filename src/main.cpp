@@ -24,35 +24,34 @@ std::string get_path(const std::string &command) {
   return "";
 }
 
-// Function to split input into program name and arguments
 std::vector<std::string> split_input(const std::string &input) {
   std::vector<std::string> tokens;
   std::string current_token;
   bool is_quoted = false;
+  char quote_char = '\0';
 
   for (size_t i = 0; i < input.size(); ++i) {
     char c = input[i];
 
     if (c == '\'' || c == '\"') {
-      if (is_quoted) {
+      if (is_quoted && c == quote_char) {
         is_quoted = false;
-        tokens.push_back(current_token);
-        current_token.clear();
-      } else {
+      } else if (!is_quoted) {
         is_quoted = true;
+        quote_char = c;
+      } else {
+        current_token += c;
       }
     } else if (std::isspace(c) && !is_quoted) {
       if (!current_token.empty()) {
         tokens.push_back(current_token);
         current_token.clear();
       }
-      // tokens.emplace_back(" ");
     } else {
       current_token += c;
     }
   }
 
-  // Add any remaining token
   if (!current_token.empty()) {
     tokens.push_back(current_token);
   }
