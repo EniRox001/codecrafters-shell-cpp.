@@ -33,7 +33,7 @@ std::vector<std::string> split_input(const std::string &input) {
   for (size_t i = 0; i < input.size(); ++i) {
     char c = input[i];
 
-    if (c == '\'') {
+    if (c == '\'' || c == '\"') {
       if (is_quoted) {
         is_quoted = false;
         tokens.push_back(current_token);
