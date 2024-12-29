@@ -1,7 +1,9 @@
-
+#include <cctype>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -24,15 +26,39 @@ std::string get_path(const std::string &command) {
 
 // Function to split input into program name and arguments
 std::vector<std::string> split_input(const std::string &input) {
-  std::istringstream iss(input);
   std::vector<std::string> tokens;
-  std::string token;
-  while (iss >> token) {
-    tokens.push_back(token);
+  std::string current_token;
+  bool is_quoted = false;
+
+  for (size_t i = 0; i < input.size(); ++i) {
+    char c = input[i];
+
+    if (c == '\'') {
+      if (is_quoted) {
+        is_quoted = false;
+        tokens.push_back(current_token);
+        current_token.clear();
+      } else {
+        is_quoted = true;
+      }
+    } else if (std::isspace(c) && !is_quoted) {
+      if (!current_token.empty()) {
+        tokens.push_back(current_token);
+        current_token.clear();
+      }
+      // tokens.emplace_back(" ");
+    } else {
+      current_token += c;
+    }
   }
+
+  // Add any remaining token
+  if (!current_token.empty()) {
+    tokens.push_back(current_token);
+  }
+
   return tokens;
 }
-
 int main() {
   // Shell built-in commands
   std::vector<std::string> built_ins = {"echo", "exit", "type", "pwd"};
@@ -114,6 +140,31 @@ int main() {
                   << std::endl;
         continue;
       }
+    }
+
+    if (command == "cat") {
+      if (arguments.empty()) {
+        std::cerr << "cat: missing file operand" << std::endl;
+        continue;
+      }
+
+      for (const auto &file : arguments) {
+        // open the file
+        std::ifstream ifs(file);
+
+        if (!ifs) {
+          std::cerr << "cat: " << file << ": No such file or directory"
+                    << std::endl;
+          continue;
+        }
+
+        std::string line;
+        while (std::getline(ifs, line)) {
+          std::cout << line << "";
+        }
+      }
+      std::cout << std::endl;
+      continue;
     }
 
     // Locate the command in the PATH
